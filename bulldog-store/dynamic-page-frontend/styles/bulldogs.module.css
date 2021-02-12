@@ -1,0 +1,12 @@
+.bulldogListContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.bulldogList {
+  display: flex;
+  width: 70%;
+  align-items: center;
+}

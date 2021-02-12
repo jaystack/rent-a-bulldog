@@ -1,0 +1,27 @@
+{
+  "name": "bulldog-shop-static",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start",
+    "prod_start": "NODE_ENV=production next start"
+  },
+  "dependencies": {
+    "@contentful/rich-text-react-renderer": "^14.1.2",
+    "@material-ui/core": "^4.11.3",
+    "@material-ui/icons": "^4.11.2",
+    "contentful": "^8.1.7",
+    "memory-cache": "^0.2.0",
+    "next": "10.0.4",
+    "react": "17.0.1",
+    "react-dom": "17.0.1"
+  },
+  "devDependencies": {
+    "@types/memory-cache": "^0.2.1",
+    "@types/node": "^14.14.22",
+    "@types/react": "^17.0.0",
+    "typescript": "^4.1.3"
+  }
+}
