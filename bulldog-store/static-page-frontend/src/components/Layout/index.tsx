@@ -1,7 +1,6 @@
 import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { AppBar, Toolbar } from '@material-ui/core';
 
 import { useCartContext } from '../../context/cartContext';
 import Footer from '../Footer';
@@ -12,6 +11,11 @@ type LayoutProps = {
 };
 
 const classes = {
+  navbarFixedTop: {
+    position: 'sticky' as 'sticky',
+    top: 0,
+    background: 'blue',
+  },
   logo: {
     height: 100,
   },
@@ -32,20 +36,14 @@ const Layout = ({ children }: LayoutProps) => {
         <title>Bulldog Shop Home Page</title>
       </Head>
 
-      <AppBar position="sticky" >
-        <div style={classes.logoHorizontallyCenter}>
-          <img src='/images/logo.png' style={classes.logo} alt="logo" />
-          <h1> Rent a bulldog</h1>
-        </div>
-      </AppBar>
-      {/*   <header className={styles.header}>
-        <Link href='/'>
-          <a>
-            <h1>BULLDOG SHOP</h1>
-          </a>
-        </Link>
-        <CartIndex items={(cartState as unknown) as string[]} />
-      </header> */}
+      <header className="navbar-fixed-top" style={classes.navbarFixedTop}>
+        <nav>
+          <div style={classes.logoHorizontallyCenter}>
+            <img src='/images/logo.png' style={classes.logo} alt="logo" />
+            <h1> Rent a bulldog</h1>
+          </div>
+        </nav>
+      </header>
       <main>{children}</main>
       <Footer />
     </div>
