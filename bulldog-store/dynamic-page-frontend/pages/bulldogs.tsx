@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { GetStaticProps } from 'next';
+import { GetStaticProps, GetServerSideProps } from 'next';
 
 import BulldogCard from '../src/components/BulldogCard';
 import styles from '../styles/bulldogs.module.css';
@@ -9,13 +9,13 @@ import CartIndex from '../src/components/CartIndex';
 import { useCartContext } from '../src/context/cartContext';
 import { getBulldogs } from '../api';
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getServerSideProps: GetServerSideProps = async () => {
   const allBulldog = await getBulldogs();
   return {
     props: {
       allBulldog,
     },
-    revalidate: 15,
+    // revalidate: 15,
   };
 };
 

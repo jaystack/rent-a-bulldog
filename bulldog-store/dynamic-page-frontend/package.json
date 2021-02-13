@@ -13,12 +13,14 @@
     "@material-ui/core": "^4.11.3",
     "@material-ui/icons": "^4.11.2",
     "contentful": "^8.1.7",
+    "express": "^4.17.1",
     "memory-cache": "^0.2.0",
     "next": "10.0.4",
     "react": "17.0.1",
     "react-dom": "17.0.1"
   },
   "devDependencies": {
+    "@types/express": "^4.17.11",
     "@types/memory-cache": "^0.2.1",
     "@types/node": "^14.14.22",
     "@types/react": "^17.0.0",
