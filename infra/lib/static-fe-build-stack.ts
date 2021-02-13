@@ -8,20 +8,20 @@ import * as ec2 from '@aws-cdk/aws-ec2';
 
 import { join } from 'path';
 
-export class InfraStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+export interface StaticFrontendStackProps extends cdk.StackProps {
+  vpc: ec2.IVpc;
+}
 
-    const vpc = new ec2.Vpc(this, 'vpc', {
-      natGateways: 0,
-    });
+export class StaticFrontendStack extends cdk.Stack {
+  constructor(scope: cdk.Construct, id: string, props: StaticFrontendStackProps) {
+    super(scope, id, props);
 
     const appBucket = new s3.Bucket(this, 'AppBucket', {
       publicReadAccess: true,
     });
 
     const scheduledTask = new ecsp.ScheduledFargateTask(this, 'ScheduledBuildTask', {
-      schedule: aas.Schedule.rate(cdk.Duration.minutes(5)),
+      schedule: aas.Schedule.rate(cdk.Duration.minutes(30)),
       scheduledFargateTaskImageOptions: {
         image: ecs.ContainerImage.fromDockerImageAsset(
           new ecra.DockerImageAsset(this, 'BuildImage', {
@@ -33,30 +33,20 @@ export class InfraStack extends cdk.Stack {
         // memoryLimitMiB: 16384,
         cpu: 1024,
         memoryLimitMiB: 4096,
+        // cpu: 256,
+        // memoryLimitMiB: 512,
         environment: {
           S3_BUCKET: appBucket.bucketName,
           S3_PREFIX: '',
+          API_URL: 'https://t8follubje.execute-api.us-east-1.amazonaws.com/prod/',
         },
       },
-      vpc,
+      vpc: props.vpc,
       subnetSelection: {
         subnetType: ec2.SubnetType.PUBLIC,
       },
-      // scheduledFargateTaskDefinitionOptions: {
-      //   taskDefinition: {
-
-      //   }
-      // }
     });
 
     appBucket.grantReadWrite(scheduledTask.taskDefinition.taskRole);
-    // new lambda.DockerImageFunction(this, 'lambda', {
-    //   code: lambda.DockerImageCode.fromImageAsset(join(__dirname, '../next-examples/with-static-export'), {
-    //     file: 'lambda.Dockerfile',
-    //     // target
-    //   }),
-    //   memorySize: 10240,
-    //   timeout: cdk.Duration.minutes(15),
-    // });
   }
 }
