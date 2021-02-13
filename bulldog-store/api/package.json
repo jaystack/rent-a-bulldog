@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "tsc": "tsc",
-    "start": "npm run tsc && node ./dist/app.js",
+    "start": "npm run tsc && node ./dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,9 +19,12 @@
   },
   "homepage": "https://github.com/mls-kll/node-typescript#readme",
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.72",
+    "@types/aws-serverless-express": "^3.3.3",
     "@types/body-parser": "^1.19.0",
     "@types/cors": "^2.8.9",
     "@types/express": "^4.17.11",
+    "@types/node": "^14.14.27",
     "source-map-support": "^0.5.19",
     "ts-node": "^9.1.1",
     "tsc": "^1.20150623.0",
@@ -30,6 +33,7 @@
   },
   "dependencies": {
     "@types/uuid": "^8.3.0",
+    "aws-serverless-express": "^3.4.0",
     "body-parser": "^1.19.0",
     "contentful": "^8.1.7",
     "cors": "^2.8.5",
