@@ -11,7 +11,7 @@ interface Dict<T> {
 
 const ENVS: Dict<cdk.Environment> = {
     'default':   { account: '511712716284', region: 'eu-west-1' },
-    'dev-ireland':   { account: '511712716284', region: 'eu-west-1' },
+    'dev-eu-west-1':   { account: '511712716284', region: 'eu-west-1' },
 }
 
 // const env = ENVS
