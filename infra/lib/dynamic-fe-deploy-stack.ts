@@ -5,27 +5,16 @@ import { join } from 'path';
 
 import * as agw from '@aws-cdk/aws-apigateway';
 import * as lambda from '@aws-cdk/aws-lambda';
-import * as lambdaN from '@aws-cdk/aws-lambda-nodejs';
 import * as acm from '@aws-cdk/aws-certificatemanager';
 import * as r53 from '@aws-cdk/aws-route53';
 import * as r53targets from '@aws-cdk/aws-route53-targets';
 
 // import * as secrets from '@aws-cdk/aws-secretsmanager';
 
-const { CONTENTFUL_SPACE, CONTENTFUL_ACCESS_TOKEN } = process.env as {
-  CONTENTFUL_SPACE: string;
-  CONTENTFUL_ACCESS_TOKEN: string;
-};
 
-if (!CONTENTFUL_ACCESS_TOKEN || !CONTENTFUL_SPACE) {
-  throw new Error('Missing Contentful credentials!');
-}
-
-export class ApiStack extends cdk.Stack {
+export class DynamicFrontEndStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-
-    // const secret = new secrets.Secret(this, 'apiSecrets', {});
 
     // SHARED ACROSS ALL ENVS
     const zoneName = 'jaystack.codes';
@@ -37,21 +26,22 @@ export class ApiStack extends cdk.Stack {
     const certificate = acm.Certificate.fromCertificateArn(this, 'DevDomainCert', devDomainCertArn );
   
     
-    const apiLambda = new lambdaN.NodejsFunction(this, 'ApiLambda', {
+
+    const webApp = new lambda.Function(this, 'WebAppLambda', {
       runtime: lambda.Runtime.NODEJS_14_X,
-      entry: join(__dirname, '../../bulldog-store/api/src/lambda.ts'),
-      depsLockFilePath: join(__dirname, '../../bulldog-store/api/package-lock.json'),
-      bundling: {},
+      handler: 'src/lambda.handler',
+      code: lambda.Code.fromAsset(join(__dirname, '../../bulldog-store/dynamic-page-frontend')),      
+      tracing: lambda.Tracing.ACTIVE,
+      memorySize: 1000,
       environment: {
-        CONTENTFUL_SPACE,
-        CONTENTFUL_ACCESS_TOKEN,
-      },
-    });
+        NODE_ENV: 'production'
+      }
+    })
 
-    const domainName = 'bulldog-api.jaystack.codes';
+    const domainName = 'bulldog-web.jaystack.codes';
 
-    const lambdaRestApi = new agw.LambdaRestApi(this, 'LambdaRestApi', {
-      handler: apiLambda,
+    const webAppGateway = new agw.LambdaRestApi(this, 'WebAppAPP', {
+      handler: webApp,
       endpointTypes: [agw.EndpointType.REGIONAL],
       domainName: {
         domainName,
@@ -64,21 +54,21 @@ export class ApiStack extends cdk.Stack {
       },
     });
 
-    new r53.ARecord(this, 'BulldogAPI', {
+    new r53.ARecord(this, 'BulldogDynamicFrontend', {
       recordName: domainName,
-      comment: 'Rent A Bulldog Express API',
+      comment: 'Rent A Bulldog NextJS Web App',
       zone,
-      target: r53.RecordTarget.fromAlias(new r53targets.ApiGateway(lambdaRestApi))
+      target: r53.RecordTarget.fromAlias(new r53targets.ApiGateway(webAppGateway))
     });
 
-    new cdk.CfnOutput(this, 'RestApiId', {
-      value: lambdaRestApi.restApiId,
-      description: 'my api',
-    });
+    // new cdk.CfnOutput(this, 'RestApiId', {
+    //   value: lambdaRestApi.restApiId,
+    //   description: 'my api',
+    // });
 
-    new cdk.CfnOutput(this, 'ApiUrl', {
-      // value: lambdaRestApi.restApiId,\
-      value: `https://${lambdaRestApi.restApiId}.execute-api.${this.region}.amazonaws.com/${lambdaRestApi.deploymentStage.stageName}`,
-    });
+    // new cdk.CfnOutput(this, 'ApiUrl', {
+    //   // value: lambdaRestApi.restApiId,\
+    //   value: `https://${lambdaRestApi.restApiId}.execute-api.${this.region}.amazonaws.com/${lambdaRestApi.deploymentStage.stageName}`,
+    // });
   }
 }

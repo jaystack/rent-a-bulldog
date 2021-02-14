@@ -8,10 +8,11 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+RUN npm run build
 
 ENV NODE_ENV=production
-ENV S3_BUCKET=test
+ENV S3_BUCKET=bulldoglocaltest
 ENV S3_PREFIX=
-ENV API_URL=
+ENV API_URL=https://bulldog-api.jaystack.codes
 
 CMD ./build.sh

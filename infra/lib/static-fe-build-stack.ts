@@ -26,7 +26,7 @@ export class StaticFrontendStack extends cdk.Stack {
         image: ecs.ContainerImage.fromDockerImageAsset(
           new ecra.DockerImageAsset(this, 'BuildImage', {
             directory: join(__dirname, '../../bulldog-store/static-page-frontend'),
-            file: 'fargate.Dockerfile',
+            file: 'static-generator.Dockerfile',
           })
         ),
         // cpu: 4096,
@@ -38,7 +38,7 @@ export class StaticFrontendStack extends cdk.Stack {
         environment: {
           S3_BUCKET: appBucket.bucketName,
           S3_PREFIX: '',
-          API_URL: 'https://t8follubje.execute-api.us-east-1.amazonaws.com/prod/',
+          API_URL: 'https://bulldog-api.jaystack.codes',
         },
       },
       vpc: props.vpc,

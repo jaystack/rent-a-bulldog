@@ -1,17 +1,18 @@
 import React from 'react';
-import { GetStaticProps } from 'next';
+import { GetStaticProps, GetServerSideProps } from 'next';
 
 import BulldogCard from '../src/components/BulldogCard';
 import { useCartContext } from '../src/context/cartContext';
 import { BulldogFields } from '../types';
 import { getBulldogs } from '../api';
-export const getStaticProps: GetStaticProps = async () => {
+
+export const getServerSideProps: GetServerSideProps = async () => {
   const allBulldogData = await getBulldogs();
   return {
     props: {
       allBulldogData,
     },
-    revalidate: 15,
+    // revalidate: 15,
   };
 };
 
