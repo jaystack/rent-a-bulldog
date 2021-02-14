@@ -1,7 +1,6 @@
 import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { AppBar, Toolbar } from '@material-ui/core';
 
 import { useCartContext } from '../../context/cartContext';
 import Footer from '../Footer';

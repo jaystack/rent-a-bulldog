@@ -2,21 +2,25 @@
 /* eslint-disable no-console */
 
 const nextJs = require('next');
+const awsxray = require('aws-xray-sdk');
+awsxray.captureHTTPsGlobal(require('https'), true);
+awsxray.captureHTTPsGlobal(require('http'), true);
+
 const express = require('express');
 
-// const basePath = process.env.NODE_ENV === 'production' ? '' : '';
+awsxray.capturePromise();
+
 const dev = process.env.NODE_ENV !== 'production';
 const app = nextJs({ dev });
 
 const handle = app.getRequestHandler();
-// const dir = fs.readdirSync('.');
-console.log('local server!!!!', { isDev: !!dev });
+console.log('express server created', { isDev: !!dev });
 const server = express();
 
 app
   .prepare()
   .then(() => {
-
+    server.use(awsxray.express.openSegment('website'));
     server.all(
       '*',
       (req, res, next) => {
@@ -25,6 +29,7 @@ app
       },
       handle
     );
+    server.use(awsxray.express.closeSegment());
   })
   .catch((ex) => {
     console.error(ex.stack);
