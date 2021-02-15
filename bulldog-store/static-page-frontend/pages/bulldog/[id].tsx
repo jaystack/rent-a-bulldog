@@ -27,8 +27,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       bulldogData: bulldogData || {
         field: {}
       },
-    },
-    revalidate: 15,
+    }
   };
 };
 

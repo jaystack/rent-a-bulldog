@@ -15,4 +15,4 @@ ENV S3_BUCKET=bulldoglocaltest
 ENV S3_PREFIX=
 ENV API_URL=https://bulldog-api.jaystack.codes
 
-CMD ./build.sh
+CMD ./generate-pages.sh

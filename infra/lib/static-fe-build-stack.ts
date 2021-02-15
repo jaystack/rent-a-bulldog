@@ -3,6 +3,7 @@ import * as s3 from '@aws-cdk/aws-s3';
 import * as ecs from '@aws-cdk/aws-ecs';
 import * as ecsp from '@aws-cdk/aws-ecs-patterns';
 import * as aas from '@aws-cdk/aws-applicationautoscaling';
+import * as ecr from '@aws-cdk/aws-ecr';
 import * as ecra from '@aws-cdk/aws-ecr-assets';
 import * as ec2 from '@aws-cdk/aws-ec2';
 
@@ -18,23 +19,17 @@ export class StaticFrontendStack extends cdk.Stack {
 
     const appBucket = new s3.Bucket(this, 'AppBucket', {
       publicReadAccess: true,
+      websiteIndexDocument: 'index.html',
     });
+
+    const pageGeneratorRepo = ecr.Repository.fromRepositoryName(this, "PageGeneratorRepo", "static-page-generator");
 
     const scheduledTask = new ecsp.ScheduledFargateTask(this, 'ScheduledBuildTask', {
       schedule: aas.Schedule.rate(cdk.Duration.minutes(30)),
       scheduledFargateTaskImageOptions: {
-        image: ecs.ContainerImage.fromDockerImageAsset(
-          new ecra.DockerImageAsset(this, 'BuildImage', {
-            directory: join(__dirname, '../../bulldog-store/static-page-frontend'),
-            file: 'static-generator.Dockerfile',
-          })
-        ),
-        // cpu: 4096,
-        // memoryLimitMiB: 16384,
+        image: ecs.ContainerImage.fromEcrRepository(pageGeneratorRepo, "latest"),
         cpu: 1024,
         memoryLimitMiB: 4096,
-        // cpu: 256,
-        // memoryLimitMiB: 512,
         environment: {
           S3_BUCKET: appBucket.bucketName,
           S3_PREFIX: '',

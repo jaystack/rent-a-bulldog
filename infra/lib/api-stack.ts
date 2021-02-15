@@ -24,8 +24,17 @@ if (!CONTENTFUL_ACCESS_TOKEN || !CONTENTFUL_SPACE) {
 export class ApiStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+    
+    const apiLambda = new lambdaN.NodejsFunction(this, 'ApiLambda', {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      entry: join(__dirname, '../../bulldog-store/api/src/lambda.ts'),
+      environment: {
+        CONTENTFUL_SPACE,
+        CONTENTFUL_ACCESS_TOKEN,
+      },
+    });
 
-    // const secret = new secrets.Secret(this, 'apiSecrets', {});
+    const domainName = 'bulldog-api.jaystack.codes';
 
     // SHARED ACROSS ALL ENVS
     const zoneName = 'jaystack.codes';
@@ -35,21 +44,7 @@ export class ApiStack extends cdk.Stack {
     // SPECIFIC TO DEPLOY REGION
     const devDomainCertArn = 'arn:aws:acm:eu-west-1:511712716284:certificate/45793209-1962-4b75-8f03-82e4b867deb5';
     const certificate = acm.Certificate.fromCertificateArn(this, 'DevDomainCert', devDomainCertArn );
-  
     
-    const apiLambda = new lambdaN.NodejsFunction(this, 'ApiLambda', {
-      runtime: lambda.Runtime.NODEJS_14_X,
-      entry: join(__dirname, '../../bulldog-store/api/src/lambda.ts'),
-      depsLockFilePath: join(__dirname, '../../bulldog-store/api/package-lock.json'),
-      bundling: {},
-      environment: {
-        CONTENTFUL_SPACE,
-        CONTENTFUL_ACCESS_TOKEN,
-      },
-    });
-
-    const domainName = 'bulldog-api.jaystack.codes';
-
     const lambdaRestApi = new agw.LambdaRestApi(this, 'LambdaRestApi', {
       handler: apiLambda,
       endpointTypes: [agw.EndpointType.REGIONAL],
@@ -71,14 +66,14 @@ export class ApiStack extends cdk.Stack {
       target: r53.RecordTarget.fromAlias(new r53targets.ApiGateway(lambdaRestApi))
     });
 
-    new cdk.CfnOutput(this, 'RestApiId', {
-      value: lambdaRestApi.restApiId,
-      description: 'my api',
-    });
+    // new cdk.CfnOutput(this, 'RestApiId', {
+    //   value: lambdaRestApi.restApiId,
+    //   description: 'my api',
+    // });
 
-    new cdk.CfnOutput(this, 'ApiUrl', {
-      // value: lambdaRestApi.restApiId,\
-      value: `https://${lambdaRestApi.restApiId}.execute-api.${this.region}.amazonaws.com/${lambdaRestApi.deploymentStage.stageName}`,
-    });
+    // new cdk.CfnOutput(this, 'ApiUrl', {
+    //   // value: lambdaRestApi.restApiId,\
+    //   value: `https://${lambdaRestApi.restApiId}.execute-api.${this.region}.amazonaws.com/${lambdaRestApi.deploymentStage.stageName}`,
+    // });
   }
 }
