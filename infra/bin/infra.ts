@@ -5,6 +5,7 @@ import { InfraBaseStack } from '../lib/infra-base-stack';
 import { ApiStack } from '../lib/api-stack';
 import { StaticFrontendStack } from '../lib/static-fe-build-stack';
 import { DynamicFrontEndStack } from '../lib/dynamic-fe-deploy-stack';
+import { FrontEndLayersStack } from '../lib/dynamic-fe-layers-deploy-stack';
 
 interface Dict<T> {
     [key: string]: T;
@@ -23,6 +24,7 @@ const base = new InfraBaseStack(app, 'InfraBaseStack', { env });
 
 new ApiStack(app, 'ApiStack', { env });
 new DynamicFrontEndStack(app,  'FrontEndStack', { env });
+new FrontEndLayersStack(app,  'FrontEndLayersStack', { env });
 new StaticFrontendStack(app, 'StaticFrontendStack', {
     env,
     vpc: base.vpc,

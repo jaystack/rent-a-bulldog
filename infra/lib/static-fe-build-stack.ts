@@ -20,28 +20,33 @@ export class StaticFrontendStack extends cdk.Stack {
     const appBucket = new s3.Bucket(this, 'AppBucket', {
       publicReadAccess: true,
       websiteIndexDocument: 'index.html',
-    });
+    });  
 
     const pageGeneratorRepo = ecr.Repository.fromRepositoryName(this, "PageGeneratorRepo", "static-page-generator");
 
+    const environment = {
+      S3_BUCKET: appBucket.bucketName,
+      S3_PREFIX: '',
+      API_URL: 'https://bulldog-api.jaystack.codes',
+    };
+
+    const pageGeneratorImage = ecs.ContainerImage.fromEcrRepository(pageGeneratorRepo, "latest");
+
     const scheduledTask = new ecsp.ScheduledFargateTask(this, 'ScheduledBuildTask', {
-      schedule: aas.Schedule.rate(cdk.Duration.minutes(30)),
       scheduledFargateTaskImageOptions: {
-        image: ecs.ContainerImage.fromEcrRepository(pageGeneratorRepo, "latest"),
+        image: pageGeneratorImage,
         cpu: 1024,
         memoryLimitMiB: 4096,
-        environment: {
-          S3_BUCKET: appBucket.bucketName,
-          S3_PREFIX: '',
-          API_URL: 'https://bulldog-api.jaystack.codes',
-        },
+        environment,
       },
+      schedule: aas.Schedule.rate(cdk.Duration.minutes(30)),
       vpc: props.vpc,
       subnetSelection: {
         subnetType: ec2.SubnetType.PUBLIC,
       },
-    });
+    }); 
 
     appBucket.grantReadWrite(scheduledTask.taskDefinition.taskRole);
+
   }
 }
